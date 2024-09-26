@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import IconButton from '../../components/IconButton';
-import MapView, { LatLng, Marker, Region } from 'react-native-maps';
 import FloatingCard from '../../components/FloatingCard';
 import Map from '../../components/Map';
-import * as Location from 'expo-location';
-import { LocationObject } from 'expo-location';
+import { newUserVar } from '../../client';
 
 export interface PersonalInfoScreenProps {
   navigation: any;
@@ -16,11 +14,9 @@ export interface PersonalInfoScreenProps {
 const PersonalInfoScreen: React.FC<PersonalInfoScreenProps> = ({ navigation, route }) => {
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
-  const [region, setRegion] = useState<LocationObject>({coords: {latitude: 0, longitude: 0, altitude: null, accuracy: null, altitudeAccuracy: null, heading: null, speed: null }, timestamp: 0});
-  const [marker, setMarker] = useState<LatLng>({latitude: 0, longitude: 0});
-  const [location, setLocation] = useState('');
-  const [disabledButton, setDisabledButton] = useState<boolean>(true);
-  let _mapView: MapView;
+  const [city, setCity] = useState('');
+  const [country, setCountry] = useState('');
+
   
   const onChange = (event: Event, selectedDate: Date) => {
     const currentDate = selectedDate || date;
@@ -28,34 +24,9 @@ const PersonalInfoScreen: React.FC<PersonalInfoScreenProps> = ({ navigation, rou
     setDate(currentDate);
   }
 
-  useEffect(() => {
-    getCurrentLocation();
-  }, []);
-
-  const getCurrentLocation = async () => {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') console.log('Permission denied');
-    let location = await Location.getCurrentPositionAsync({});
-    setDisabledButton(false);
-    setRegion(location)
-  }
-
-  const setLocationName = async (latitude: string, longitude: string) => {
-    if (Number(latitude) > 0) {
-      latitude = '+' + String(latitude);
-    } else {
-      latitude = String(latitude);
-    };
-    if (Number(longitude) > 0) {
-      longitude = '+' + String(longitude)
-    } else {
-      longitude = String(longitude);
-    };
-    const response = await fetch(`http://geodb-free-service.wirefreethought.com/v1/geo/cities?limit=5&offset=0&location=${encodeURIComponent(latitude)}${encodeURIComponent(longitude)}&radius=50&sort=-population`)
-    const locations = await response.json();    
-    const cities = locations.data.filter((location: any) => location.type === "CITY");
-    if (!cities.length) setLocation('No major cities near you');
-    else setLocation(`${cities[0].city}, ${cities[0].country}`);
+  const handleLocation = (newCity: string, newCountry: string) => {
+    setCity(newCity);
+    setCountry(newCountry);
   }
 
   return (
@@ -75,11 +46,11 @@ const PersonalInfoScreen: React.FC<PersonalInfoScreenProps> = ({ navigation, rou
           onChange={onChange}
         />)}
       </FloatingCard>
-      <Map title={'Where are you from?'} currentLocation={true}/>
+      <Map title={'Where are you from?'} currentLocation={true} onSelectLocation={handleLocation} />
       <TouchableOpacity 
         onPress={() => {
-          if (!marker.longitude && !marker.latitude) alert('No location selected!')
-          else if (location === 'No major cities near you') alert('No major cities nearby!')
+          newUserVar({...newUserVar(), dob: date, city: city, country: country, filterCity: city});
+          if(!city) alert('No location selected!')
           else navigation.navigate('HobbiesScreen')}}
       >
         <IconButton name={'chevron-right'} color={'white'} size={30} bgColor={'#99879D'}/>

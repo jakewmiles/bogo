@@ -15,7 +15,7 @@ const LandingScreen: React.FC<LandingScreenProps> = ({ navigation }) => {
         style={styles.button}
         onPress={() => navigation.navigate('SignupScreen')}
       >
-        <TextButton title={'Create Account'}/>
+        <TextButton title={'CREATE ACCOUNT'} filled={true}/>
       </TouchableOpacity>
       <View style={styles.login}>
         <Text>Already have an account?</Text>

@@ -11,7 +11,7 @@ export interface IconButtonProps {
 
 const IconButton: React.FC<IconButtonProps> = ({ name, color, size, bgColor }) => {
   return (
-    <View style={[styles.button, {backgroundColor: bgColor}]}>
+    <View style={[styles.button, {backgroundColor: bgColor, borderColor: color}]}>
       <MaterialCommunityIcon
         name={name}
         color={color}
@@ -25,6 +25,7 @@ const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',
+    // borderWidth: 1,
     borderRadius: 30,
     height: 60,
     width: 60,
